@@ -12,8 +12,8 @@ I'm a full-stack developer with 2+ years of experience building web and mobile a
 
 - **Email:** ayeniv69@gmail.com
 - **GitHub:** [github.com/vay-dev](https://github.com/vay-dev)
-- **WhatsApp:** [your number here]
-- **Discord:** [your tag here]
+- **WhatsApp:** [Chat with me](https://wa.me/2348105315495?text=Hi%20Victor!%20I%20came%20across%20your%20portfolio.)
+- **Discord:** [message me on discord ](https://discordapp.com/user/1378082762552246442)
 
 ---
 
