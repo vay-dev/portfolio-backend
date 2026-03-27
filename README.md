@@ -1,1 +1,51 @@
-# portfolio-backend
+# Victor Ayeni — Developer Portfolio
+
+Personal portfolio website showcasing my projects, skills, and experience as a full-stack developer based in Lagos, Nigeria.
+
+**Live site:** [your-domain.com](https://your-domain.com)
+
+---
+
+## About Me
+
+I'm a full-stack developer with 2+ years of experience building web and mobile applications. I enjoy working across the stack — from crafting clean UIs to designing APIs and integrating AI into products.
+
+- **Email:** ayeniv69@gmail.com
+- **GitHub:** [github.com/vay-dev](https://github.com/vay-dev)
+- **WhatsApp:** [your number here]
+- **Discord:** [your tag here]
+
+---
+
+## What's in This Repo
+
+This repository contains the backend for my portfolio site.
+
+### Frontend
+- Built with **React 19 + TypeScript** and **Vite**
+- Animated with **Framer Motion**
+- Styled with **TailwindCSS v4** and **Sass**
+- Sections: Hero, About, Skills, Projects, Contact
+
+### Backend
+- **Express.js + TypeScript** REST API
+- **PostgreSQL** database via **Prisma ORM**
+- **AI-powered** project description generation using Claude (via OpenRouter — free tier, no billing)
+- Admin-protected endpoints with **JWT authentication**
+- File upload support for project screenshots via **Multer**
+- Auto-screenshot capability via **Playwright**
+- API docs at `/api-docs` (Swagger UI)
+
+---
+
+## Running Locally
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL running locally
+
+### Backend
+
+```bash
+cd portfolio-backend
+npm install
