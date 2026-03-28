@@ -44,8 +44,8 @@ Tone: confident, technical, first-person. No buzzwords like "leveraged" or "seam
     messages: [{ role: "user", content: prompt }],
   });
 
-  const block = message.content[0];
-  if (block.type !== "text") throw new Error("Unexpected response type from Claude");
+  const block = message.content.find((b) => b.type === "text");
+  if (!block || block.type !== "text") throw new Error("No text block in AI response");
   return block.text;
 }
 
@@ -56,23 +56,27 @@ export async function generateAllDescriptions(project: {
   role?: string;
   status?: string;
   architectureNotes?: string;
-}): Promise<{ shortDescription: string; fullDescription: string }> {
-  const prompt = `You are writing project descriptions for a developer portfolio. Given the raw context below, generate TWO things:
+}): Promise<{ shortDescription: string; fullDescription: string; role: string; status: string; featured: boolean }> {
+  const prompt = `You are writing project descriptions for a developer portfolio. Given the raw context below, generate the following:
 
 1. SHORT DESCRIPTION (1–2 sentences, max 180 characters): A punchy, specific summary for list/card views. No fluff.
 2. FULL DESCRIPTION (3–4 paragraphs): Deep, technical, first-person. What it is, why it exists, the hard engineering decisions, what makes it non-trivial. No buzzwords like "leveraged" or "seamless".
+3. ROLE: The developer's role on this project. One of: "Solo Developer", "Lead Developer", "Frontend Developer", "Backend Developer", "Full-Stack Developer", "Contributor". Pick the best fit from the context.
+4. STATUS: Project status. One of exactly: "in-development", "live", "archived". Pick based on context clues.
+5. FEATURED: Should this be a featured/highlighted project? "true" if it's a substantial, impressive, or complete project. "false" if it's a small side project or WIP.
 
 Project:
 - Title: ${project.title}
-- Role: ${project.role ?? "Solo Developer"}
-- Status: ${project.status ?? "live"}
 - Stack: ${project.techStack.join(", ")}
 ${project.architectureNotes ? `- Architecture Notes: ${project.architectureNotes}` : ""}
 - Raw Context: ${project.aiContext}
 
-Respond in this exact format with no extra text:
-SHORT: <your short description here>
-FULL: <your full description here>`;
+Respond in this EXACT format with no extra text:
+SHORT: <short description>
+FULL: <full description>
+ROLE: <role>
+STATUS: <status>
+FEATURED: <true or false>`;
 
   const message = await client.messages.create({
     model: process.env.AI_MODEL ?? "openrouter/free",
@@ -80,15 +84,23 @@ FULL: <your full description here>`;
     messages: [{ role: "user", content: prompt }],
   });
 
-  const block = message.content[0];
-  if (block.type !== "text") throw new Error("Unexpected response type");
+  const block = message.content.find((b) => b.type === "text");
+  if (!block || block.type !== "text") throw new Error("No text block in AI response");
 
   const text = block.text;
-  const shortMatch = text.match(/SHORT:\s*(.+?)(?=\nFULL:|$)/s);
-  const fullMatch = text.match(/FULL:\s*([\s\S]+)/);
+
+  // Split on labelled sections so multiline values are captured correctly
+  const shortMatch = text.match(/^SHORT:\s*(.+?)(?=\nFULL:)/ms);
+  const fullMatch = text.match(/^FULL:\s*([\s\S]+?)(?=\nROLE:)/m);
+  const roleMatch = text.match(/^ROLE:\s*(.+?)(?=\nSTATUS:)/ms);
+  const statusMatch = text.match(/^STATUS:\s*(.+?)(?=\nFEATURED:)/ms);
+  const featuredMatch = text.match(/^FEATURED:\s*(.+)/m);
 
   return {
     shortDescription: shortMatch?.[1]?.trim() ?? "",
     fullDescription: fullMatch?.[1]?.trim() ?? text,
+    role: roleMatch?.[1]?.trim() ?? "Solo Developer",
+    status: statusMatch?.[1]?.trim() ?? "in-development",
+    featured: featuredMatch?.[1]?.trim().toLowerCase() === "true",
   };
 }
