@@ -23,6 +23,7 @@ model Project {
   screenshots       String[]
   aiContext         String?
   featured          Boolean  @default(false)
+  isHidden          Boolean  @default(false)
   displayOrder      Int      @default(0)
   buyMeCoffeeUrl    String?
   partnerName       String?

@@ -15,6 +15,21 @@ export const getAllProjects = async (_req: Request, res: Response) => {
   ok(res, projects);
 };
 
+export const getAllAdminProjects = async (_req: Request, res: Response) => {
+  const projects = await projectService.getAllAdmin();
+  ok(res, projects);
+};
+
+export const toggleProjectHidden = async (req: Request, res: Response) => {
+  const id = req.params["id"] as string;
+  const project = await projectService.getById(id);
+  if (!project) return fail(res, "Project not found", 404);
+  const { isHidden } = req.body as { isHidden: boolean };
+  if (typeof isHidden !== "boolean") return fail(res, "isHidden must be a boolean", 400);
+  const updated = await projectService.toggleHidden(id, isHidden);
+  ok(res, updated, `Project ${isHidden ? "hidden" : "visible"}`);
+};
+
 export const getProjectBySlug = async (req: Request, res: Response) => {
   const project = await projectService.getBySlug(req.params["slug"] as string);
   if (!project) return fail(res, "Project not found", 404);

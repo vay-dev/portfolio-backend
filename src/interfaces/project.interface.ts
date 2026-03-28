@@ -13,6 +13,7 @@ export interface CreateProjectInput {
   screenshots?: string[];
   aiContext?: string;
   featured?: boolean;
+  isHidden?: boolean;
   displayOrder?: number;
   buyMeCoffeeUrl?: string;
   // Partner fields — optional, only for collaborative projects

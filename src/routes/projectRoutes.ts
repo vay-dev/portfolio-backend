@@ -1,12 +1,14 @@
 import { Router } from "express";
 import {
   getAllProjects,
+  getAllAdminProjects,
   getProjectBySlug,
   createProject,
   updateProject,
   deleteProject,
   generateDescription,
   generateDescriptionsFromContext,
+  toggleProjectHidden,
 } from "../controllers/projectController";
 import { validateProject } from "../middlewares/validateProject";
 import { requireAuth } from "../middlewares/requireAuth";
@@ -17,11 +19,12 @@ const router = Router();
  * @swagger
  * /api/projects:
  *   get:
- *     summary: Get all projects
+ *     summary: Get all visible projects (public)
+ *     description: Returns only projects where isHidden is false. Use /api/projects/admin for the full list.
  *     tags: [Projects]
  *     responses:
  *       200:
- *         description: List of projects ordered by featured, displayOrder, createdAt
+ *         description: List of visible projects ordered by featured, displayOrder, createdAt
  *         content:
  *           application/json:
  *             schema:
@@ -58,6 +61,26 @@ router.get("/", getAllProjects);
  *         description: Generated short and full descriptions
  */
 router.post("/generate-descriptions", requireAuth, generateDescriptionsFromContext);
+
+/**
+ * @swagger
+ * /api/projects/admin:
+ *   get:
+ *     summary: Get all projects including hidden ones (admin only)
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Full list of all projects regardless of isHidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Project'
+ */
+router.get("/admin", requireAuth, getAllAdminProjects);
 
 /**
  * @swagger
@@ -150,6 +173,46 @@ router.post("/", requireAuth, validateProject, createProject);
  *         description: Project not found
  */
 router.put("/:id", requireAuth, updateProject);
+
+/**
+ * @swagger
+ * /api/projects/{id}/visibility:
+ *   patch:
+ *     summary: Toggle project visibility (hide / unhide)
+ *     tags: [Projects]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [isHidden]
+ *             properties:
+ *               isHidden:
+ *                 type: boolean
+ *                 description: true to hide the project from the public portfolio, false to show it
+ *     responses:
+ *       200:
+ *         description: Project visibility updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: isHidden must be a boolean
+ *       404:
+ *         description: Project not found
+ */
+router.patch("/:id/visibility", requireAuth, toggleProjectHidden);
 
 /**
  * @swagger
