@@ -6,9 +6,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": ".",
-    "outDir": "./dist"
+    "rootDir": "./",
+    "outDir": "./dist",
+    "baseUrl": "."
   },
-  "include": ["src/**/*", "generated/prisma/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

@@ -46,7 +46,8 @@ jobs:
             git status --short
             git branch --show-current
 
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             npm install
             npx prisma generate
             npx prisma db push
