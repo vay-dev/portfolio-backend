@@ -49,3 +49,23 @@ This repository contains the backend for my portfolio site.
 ```bash
 cd portfolio-backend
 npm install
+cp .env.example .env
+```
+
+Set `CORS_ORIGINS` in `.env` as a comma-separated allowlist. For your current frontend setup, use:
+
+```env
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,https://vay-project-dashboard.vercel.app
+```
+
+That allows both local development and your deployed Vercel dashboard frontend to call the backend.
+
+Admin authentication is bootstrapped from env on startup. Set these values in `.env`:
+
+```env
+ADMIN_EMAIL=admin@vay.systems
+ADMIN_PASSWORD_HASH=replace-me
+JWT_SECRET=replace-me
+```
+
+On startup, the backend will create or refresh the bootstrap admin user in the database from those values.

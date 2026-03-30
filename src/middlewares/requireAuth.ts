@@ -10,7 +10,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
   const token = header.slice(7);
   try {
-    jwt.verify(token, process.env.JWT_SECRET as string);
+    const payload = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      role?: string;
+    };
+    if (payload.role !== "admin") {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
     next();
   } catch {
     res.status(401).json({ error: "Invalid or expired token" });
