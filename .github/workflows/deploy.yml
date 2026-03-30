@@ -3,13 +3,26 @@ name: Deploy Backend
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          test -n "$HOST" || { echo "Missing HOST secret"; exit 1; }
+          test -n "$USERNAME" || { echo "Missing USERNAME secret"; exit 1; }
+          test -n "$SSH_KEY" || { echo "Missing SSH_KEY secret"; exit 1; }
+          echo "Required deploy secrets are present."
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
@@ -17,17 +30,34 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          command_timeout: 30m
           script: |
+            set -euxo pipefail
+
+            echo "Connected to server"
+            whoami
+            pwd
+            node -v
+            npm -v
+
             cd ~/portfolio-backend
+            echo "Entered repo directory"
+            pwd
+            git status --short
+            git branch --show-current
+
             git pull origin main
             npm install
             npx prisma generate
             npx prisma db push
             npm run build
+
+            pm2 list
             pm2 restart portfolio-backend
 
       - name: Notify Discord
-        if: always()
+        if: always() && secrets.DISCORD_WEBHOOK != ''
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: ${{ job.status == 'success' && 'info' || 'error' }}
