@@ -5,6 +5,45 @@ import { ok, fail } from "../lib/response";
 import { adminUserService } from "../services/adminUserService";
 
 const DEFAULT_ADMIN_EMAIL = "admin@vay.systems";
+const JWT_SECRET = () => process.env.JWT_SECRET as string;
+
+export async function refresh(req: Request, res: Response): Promise<void> {
+  const header = req.headers.authorization;
+  if (!header?.startsWith("Bearer ")) {
+    fail(res, "Missing token", 401);
+    return;
+  }
+
+  const token = header.slice(7);
+  let payload: { sub: string; email: string; role: string };
+
+  try {
+    payload = jwt.verify(token, JWT_SECRET()) as typeof payload;
+  } catch {
+    fail(res, "Invalid or expired token", 401);
+    return;
+  }
+
+  if (payload.role !== "admin") {
+    fail(res, "Forbidden", 403);
+    return;
+  }
+
+  // Verify the admin is still active before re-signing
+  const adminUser = await adminUserService.getByEmail(payload.email);
+  if (!adminUser || !adminUser.isActive) {
+    fail(res, "Account inactive", 401);
+    return;
+  }
+
+  const newToken = jwt.sign(
+    { sub: adminUser.id, email: adminUser.email, role: adminUser.role },
+    JWT_SECRET(),
+    { expiresIn: "7d" },
+  );
+
+  ok(res, { token: newToken }, "Token refreshed");
+}
 
 export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body as { email?: string; password?: string };
