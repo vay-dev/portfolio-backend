@@ -55,10 +55,10 @@ cp .env.example .env
 Set `CORS_ORIGINS` in `.env` as a comma-separated allowlist. For your current frontend setup, use:
 
 ```env
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,https://vay-project-dashboard.vercel.app
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,https://vaydev-portfolio-v2.vercel.app
 ```
 
-That allows both local development and your deployed Vercel dashboard frontend to call the backend.
+That allows both local development and your deployed Vercel portfolio frontend to call the backend.
 
 Admin authentication is bootstrapped from env on startup. Set these values in `.env`:
 

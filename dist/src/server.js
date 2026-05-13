@@ -18,7 +18,8 @@ const swagger_1 = require("./lib/swagger");
 const adminUserService_1 = require("./services/adminUserService");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = (process.env.CORS_ORIGINS ?? "http://localhost:5173,http://127.0.0.1:5173")
+const allowedOrigins = (process.env.CORS_ORIGINS ??
+    "http://localhost:5173,http://127.0.0.1:5173,https://vaydev-portfolio-v2.vercel.app")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
